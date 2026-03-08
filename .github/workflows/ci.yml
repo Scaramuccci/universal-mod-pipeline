@@ -34,7 +34,7 @@ jobs:
         run: python -m pipeline.cli report --mod-path examples/sample_mod --artifacts dist
 
       - name: Run tests
-        run: pytest
+        run: python -m pytest
 
       - name: Upload CI artifacts
         uses: actions/upload-artifact@v4
