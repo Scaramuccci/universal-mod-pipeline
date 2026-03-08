@@ -1,264 +1,144 @@
-# Universal Mod Pipeline
+# Game Mod CI Pipeline
 
-A DevOps pipeline for validating, packaging, and releasing game mods automatically.
+A DevOps portfolio project that brings proper CI/CD practices to game modding — automated validation, reproducible packaging, checksum generation, and GitHub Release publishing.
 
-Universal Mod Pipeline provides a structured workflow for mod developers to validate mod structure, package assets, generate build artifacts, and publish releases through automated CI/CD pipelines.
+## What it does
 
-The system is **engine-agnostic** and can be used for mods targeting:
+```
+Push to main / open PR
+        │
+        ▼
+┌───────────────────┐
+│  Validate mod     │  ← structure, manifest schema, entry script
+└────────┬──────────┘
+         │
+         ▼
+┌───────────────────┐
+│  Package mod      │  ← versioned .zip + build-info.json
+└────────┬──────────┘
+         │
+         ▼
+┌───────────────────┐
+│  Generate         │  ← per-file .sha256 + combined checksums.sha256
+│  checksums        │
+└────────┬──────────┘
+         │
+         ▼
+┌───────────────────┐
+│  Upload artifacts │  ← stored in GitHub Actions for 30 days
+└────────┬──────────┘
+         │ (tag push only)
+         ▼
+┌───────────────────┐
+│  GitHub Release   │  ← .zip, .sha256, .build-info.json attached
+└───────────────────┘
+```
 
-- Unreal Engine
-- Unity
-- Source Engine
-- Lua-based games
-- VR titles
-- Asset packs and map packs
+## Why I built it
 
-The goal of this project is to bring **modern DevOps practices into game modding workflows**, where most modding projects are still manual.
+Most modding workflows are entirely manual — zip it up yourself, upload by hand, hope you didn't forget anything. This project treats a game mod like any other software artifact: validated, versioned, checksummed, and released through a repeatable automated pipeline.
 
----
+## Repo structure
 
-# Features
-
-- Automated mod validation
-- Security checks for mod packages
-- Manifest schema validation
-- Automatic packaging into versioned ZIP archives
-- SHA256 checksum generation
-- Build metadata generation
-- JSON and Markdown build reports
-- GitHub Actions CI/CD integration
-- Automated GitHub release publishing
-
----
-
-# Project Structure
-
-universal-mod-pipeline
-│
-├── .github/workflows
-│ ├── ci.yml
-│ └── release.yml
-│
-├── pipeline
-│ ├── cli.py
-│ ├── config.py
-│ ├── manifest.py
-│ ├── checks.py
-│ ├── security.py
-│ ├── packaging.py
-│ └── reporting.py
-│
-├── examples
-│ └── sample_mod
-│ ├── manifest.json
-│ ├── assets
-│ └── scripts
-│
-├── tests
-│
-├── docs
-│ └── architecture.md
-│
-├── requirements.txt
-├── pyproject.toml
+```
+game-mod-ci-pipeline/
+├── .github/workflows/
+│   └── release.yml          # Full CI/CD pipeline
+├── docker/
+│   └── Dockerfile           # Reproducible build environment
+├── mods/
+│   └── example_mod/
+│       ├── manifest.json    # Mod metadata (validated by schema)
+│       ├── assets/
+│       └── scripts/
+│           └── init.lua
+├── scripts/
+│   ├── validate_mod.py      # Structure + schema validation
+│   ├── package_mod.py       # Zip packaging + build-info sidecar
+│   └── generate_checksums.py# SHA256 per file + combined manifest
 ├── Makefile
-└── README.md
+├── requirements.txt
+└── .gitignore
+```
 
+## Manifest format
 
----
+```json
+{
+  "name": "your_mod",
+  "version": "1.0.0",
+  "game": "target-game",
+  "author": "Your Name",
+  "entry_script": "scripts/init.lua",
+  "description": "Optional but recommended.",
+  "tags": ["optional"],
+  "homepage": "https://optional.link"
+}
+```
 
-# How the Pipeline Works
+| Field          | Required | Notes                              |
+|----------------|----------|------------------------------------|
+| `name`         | ✅       | Alphanumeric, used in archive name |
+| `version`      | ✅       | Must be `MAJOR.MINOR.PATCH`        |
+| `game`         | ✅       | Target game identifier             |
+| `author`       | ✅       | Display name                       |
+| `entry_script` | ✅       | Relative path; must exist on disk  |
+| `description`  | ⚠️       | Optional, warned if missing        |
+| `tags`         | ⚠️       | Optional, warned if missing        |
+| `homepage`     | ⚠️       | Optional, warned if missing        |
 
+## Local usage
 
-Push code
-│
-▼
-GitHub Actions CI
-│
-├── Validate mod structure
-├── Run security checks
-├── Package mod into ZIP
-├── Generate checksums
-├── Generate build reports
-└── Run tests
-
-
-When a **release tag** is pushed:
-
-
-git tag v0.1.0
-git push origin v0.1.0
-
-
-The release pipeline automatically:
-
-- validates the mod
-- packages the mod
-- generates checksums
-- generates build reports
-- publishes a GitHub release with artifacts
-
----
-
-# Requirements
-
-- Python 3.12+
-- Git
-- GitHub repository (for CI/CD)
-
-Install dependencies:
-
+```bash
+# Install dependencies
 pip install -r requirements.txt
 
+# Validate
+python scripts/validate_mod.py --mod-path mods/example_mod
 
----
+# Package
+python scripts/package_mod.py --mod-path mods/example_mod --output dist
 
-# Quick Start
+# Checksums
+python scripts/generate_checksums.py --input dist
 
-Validate the example mod:
+# Or run everything at once
+make all
+```
 
-python -m pipeline.cli validate --mod-path examples/sample_mod
+## Docker
 
+```bash
+make docker-build
+make docker-run
+# or manually:
+docker run --rm -v $(pwd):/app game-mod-ci \
+  python scripts/validate_mod.py --mod-path mods/example_mod
+```
 
-Package the mod:
-python -m pipeline.cli package --mod-path examples/sample_mod --output dist
+## Releasing
 
+Push a version tag and the pipeline publishes a GitHub Release automatically:
 
-Generate build reports:
-python -m pipeline.cli report --mod-path examples/sample_mod --artifacts dist
+```bash
+git tag v1.2.0
+git push origin v1.2.0
+```
 
+The release will include:
+- `example_mod-1.2.0.zip` — the packaged mod
+- `example_mod-1.2.0.zip.sha256` — SHA256 checksum
+- `example_mod-1.2.0.build-info.json` — build metadata (timestamp, file count, size)
+- Auto-generated release notes from commit history
 
-Run tests:
-python -m pytest
+## Ideas for v2
 
+- Multi-mod monorepo support (validate/package each mod independently)
+- Asset type validation (image dimensions, audio format, script syntax)
+- Mod size diff reports between releases
+- Discord webhook notifications on release
+- Web dashboard for pipeline history
 
----
+## License
 
-# Example Mod Layout
-
-Every mod should follow a standard structure:
-
-my_mod/
-│
-├── manifest.json
-├── assets/
-└── scripts/
-
-
-Example manifest:
-
-{
-"name": "sample_mod",
-"version": "0.1.0",
-"game": "generic",
-"engine": "generic",
-"author": "Your Name",
-"entry_script": "scripts/init.lua",
-"description": "Example mod package",
-"tags": ["example"]
-}
-
-
----
-
-# CI/CD Integration
-
-This repository includes two GitHub workflows.
-
-## CI Workflow
-
-Runs on every push and pull request.
-
-Pipeline steps:
-
-- validate mod
-- package mod
-- generate reports
-- run tests
-- upload build artifacts
-
-## Release Workflow
-
-Runs when a version tag is pushed.
-
-Example:
-git tag v0.1.0
-git push origin v0.1.0
-
-
-Artifacts published in the release:
-sample_mod-0.1.0.zip
-sample_mod-0.1.0.zip.sha256
-sample_mod-0.1.0.build-info.json
-build-report.json
-build-report.md
-
-
----
-
-# Security Checks
-
-The pipeline includes safety checks to prevent malicious mod packages.
-
-- blocks dangerous file types (`.exe`, `.dll`, `.bat`, `.ps1`)
-- enforces maximum file size limits
-- enforces maximum total package size
-- validates entry scripts
-- validates required mod directories
-
-These checks help ensure safe and consistent mod releases.
-
----
-
-# Testing
-
-The project includes automated tests for:
-
-- manifest validation
-- packaging logic
-- security checks
-- checksum generation
-
-Run tests locally:
-python -m pytest
-
-
----
-
-# Documentation
-
-Additional technical documentation is available here:
-docs/architecture.md
-
-
-This document explains the internal pipeline design and module responsibilities.
-
----
-
-# Roadmap
-
-Future improvements planned:
-
-- support multiple mods in one repository
-- mod dependency validation
-- mod signing and verification
-- mod registry support
-- containerized build environments
-- plugin system for engine-specific pipelines
-
----
-
-# License
-
-This project is released under the MIT License.
-
----
-
-# Author
-
-Ibrahim Rahmani
-
-DevOps engineer with a passion for games, modding, and automation tooling.
-
-This project is a hobby effort to bring modern DevOps practices into the game modding ecosystem.
-
+MIT

@@ -1,19 +1,23 @@
-name: release
+name: build-and-release-mod
 
 on:
   push:
+    branches: [main]
     tags:
       - 'v*'
+  pull_request:
+    branches: [main]
 
 jobs:
-  release:
-    name: Build & Publish Release
+  # ──────────────────────────────────────────────────────────────
+  # JOB 1 — Validate structure, manifest schema, and entry script
+  # ──────────────────────────────────────────────────────────────
+  validate-and-package:
+    name: Validate & Package
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python 3.12
@@ -22,20 +26,56 @@ jobs:
           python-version: '3.12'
           cache: pip
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: Run tests
-        run: python -m pytest
-
       - name: Validate mod
-        run: python -m pipeline.cli validate --mod-path examples/sample_mod
+        run: python scripts/validate_mod.py --mod-path mods/example_mod
 
-      - name: Package mod
-        run: python -m pipeline.cli package --mod-path examples/sample_mod --output dist
+      - name: Package mod into zip
+        run: python scripts/package_mod.py --mod-path mods/example_mod --output dist
 
-      - name: Write build reports
-        run: python -m pipeline.cli report --mod-path examples/sample_mod --artifacts dist
+      - name: Generate SHA256 checksums
+        run: python scripts/generate_checksums.py --input dist
+
+      - name: List build artifacts
+        run: ls -lh dist/
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mod-artifacts
+          path: dist/*
+          retention-days: 30
+
+  # ──────────────────────────────────────────────────────────────
+  # JOB 2 — Publish a GitHub Release (tag pushes only)
+  # ──────────────────────────────────────────────────────────────
+  release:
+    name: Create GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: validate-and-package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Re-package mod for release
+        run: |
+          python scripts/package_mod.py --mod-path mods/example_mod --output dist
+          python scripts/generate_checksums.py --input dist
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -44,8 +84,6 @@ jobs:
             dist/*.zip
             dist/*.sha256
             dist/*.build-info.json
-            reports/*.json
-            reports/*.md
           generate_release_notes: true
           fail_on_unmatched_files: true
         env:
