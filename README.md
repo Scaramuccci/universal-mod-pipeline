@@ -219,9 +219,21 @@ The release will include
 
 # Ideas for v2
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 30c340f (rewrite README with clean pipeline documentation)
 
 • Multi‑mod repository support  
 • Asset validation (images, audio, scripts)  
 • Mod size comparison between releases  
 • Discord webhook notifications on release  
 • Simple dashboard for pipeline history  
+<<<<<<< HEAD
+=======
+
+---
+
+# License
+
+MIT
+>>>>>>> 30c340f (rewrite README with clean pipeline documentation)
