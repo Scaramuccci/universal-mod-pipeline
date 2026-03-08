@@ -1,8 +1,13 @@
-# Game Mod CI Pipeline
+# UniversalModLoader
 
-A DevOps project that brings proper CI/CD practices to game modding — automated validation, reproducible packaging, checksum generation, and GitHub Release publishing.
+![CI](https://github.com/Scaramuccci/universal-mod-pipeline/actions/workflows/ci.yml/badge.svg)
+![Release](https://img.shields.io/github/v/release/Scaramuccci/universal-mod-pipeline)
+![Downloads](https://img.shields.io/github/downloads/Scaramuccci/universal-mod-pipeline/total)
+![License](https://img.shields.io/github/license/Scaramuccci/universal-mod-pipeline)
 
-## What it does
+A DevOps-driven pipeline for validating, packaging, and releasing game mods automatically.
+
+UniversalModLoader demonstrates how CI/CD principles can be applied to game mod development, providing automated validation, reproducible builds, artifact checksums, and release management through GitHub Actions.
 
 ```
 Push to main / open PR
