@@ -1,6 +1,6 @@
 # Game Mod CI Pipeline
 
-A DevOps portfolio project that brings proper CI/CD practices to game modding — automated validation, reproducible packaging, checksum generation, and GitHub Release publishing.
+A DevOps project that brings proper CI/CD practices to game modding — automated validation, reproducible packaging, checksum generation, and GitHub Release publishing.
 
 ## What it does
 
