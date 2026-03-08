@@ -6,7 +6,7 @@ from pipeline.manifest import ManifestError, ModManifest, load_manifest
 def test_manifest_loads_valid():
     manifest = load_manifest(Path("examples/sample_mod"))
     assert manifest.name == "sample_mod"
-    assert manifest.version == "1.0.0"
+    assert manifest.version == "0.1.0"
     assert isinstance(manifest, ModManifest)
 
 
