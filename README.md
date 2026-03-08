@@ -225,33 +225,3 @@ The release will include
 • Mod size comparison between releases  
 • Discord webhook notifications on release  
 • Simple dashboard for pipeline history  
-
----
-
-# License
-=======
->>>>>>> 6aa0a2e
-
-• Multi‑mod repository support  
-• Asset validation (images, audio, scripts)  
-• Mod size comparison between releases  
-• Discord webhook notifications on release  
-• Simple dashboard for pipeline history  
-
----
-
-# License
-
-<<<<<<< HEAD
-Multi-mod monorepo support (build every mod automatically)
-
-Asset validation (images, audio formats, scripts)
-
-Mod size comparison between releases
-
-Discord webhook notifications on releases
-
-Simple dashboard for pipeline history
-=======
-MIT
->>>>>>> 30c340f (rewrite README with clean pipeline documentation)
