@@ -1,0 +1,13 @@
+{
+  "name": "sample_mod",
+  "version": "1.0.0",
+  "game": "generic",
+  "engine": "generic",
+  "author": "Your Name Here",
+  "description": "Example mod package for pipeline testing",
+  "artifact": "sample_mod-1.0.0.zip",
+  "size_bytes": 1019,
+  "checksums": [
+    "sample_mod-1.0.0.zip.sha256"
+  ]
+}
