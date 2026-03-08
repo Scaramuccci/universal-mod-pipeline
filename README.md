@@ -47,7 +47,7 @@ game-mod-ci-pipeline/
 ├── docker/
 │   └── Dockerfile           # Reproducible build environment
 ├── mods/
-│   └── example_mod/
+│   └── UniversalModLoader/
 │       ├── manifest.json    # Mod metadata (validated by schema)
 │       ├── assets/
 │       └── scripts/
@@ -94,10 +94,10 @@ game-mod-ci-pipeline/
 pip install -r requirements.txt
 
 # Validate
-python scripts/validate_mod.py --mod-path mods/example_mod
+python scripts/validate_mod.py --mod-path mods/UniversalModLoader
 
 # Package
-python scripts/package_mod.py --mod-path mods/example_mod --output dist
+python scripts/package_mod.py --mod-path mods/UniversalModLoader --output dist
 
 # Checksums
 python scripts/generate_checksums.py --input dist
@@ -113,7 +113,7 @@ make docker-build
 make docker-run
 # or manually:
 docker run --rm -v $(pwd):/app game-mod-ci \
-  python scripts/validate_mod.py --mod-path mods/example_mod
+  python scripts/validate_mod.py --mod-path mods/UniversalModLoader
 ```
 
 ## Releasing
@@ -126,9 +126,9 @@ git push origin v1.2.0
 ```
 
 The release will include:
-- `example_mod-1.2.0.zip` — the packaged mod
-- `example_mod-1.2.0.zip.sha256` — SHA256 checksum
-- `example_mod-1.2.0.build-info.json` — build metadata (timestamp, file count, size)
+- `UniversalModLoader-1.2.0.zip` — the packaged mod
+- `UniversalModLoader-1.2.0.zip.sha256` — SHA256 checksum
+- `UniversalModLoader-1.2.0.build-info.json` — build metadata (timestamp, file count, size)
 - Auto-generated release notes from commit history
 
 ## Ideas for v2

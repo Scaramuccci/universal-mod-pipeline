@@ -1,0 +1,10 @@
+{
+  "name": "UniversalModLoader",
+  "version": "0.1.1",
+  "game": "multi-game",
+  "author": "Ibrahim Rahmani",
+  "entry_script": "scripts/init.lua",
+  "description": "A universal mod loading framework and CI/CD pipeline for validating, packaging, and distributing game mods.",
+  "tags": ["modding", "pipeline", "devops"],
+  "homepage": "https://github.com/Scaramuccci/universal-mod-pipeline"
+}

@@ -30,10 +30,10 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Validate mod
-        run: python scripts/validate_mod.py --mod-path mods/example_mod
+        run: python scripts/validate_mod.py --mod-path mods/UniversalModLoader
 
       - name: Package mod into zip
-        run: python scripts/package_mod.py --mod-path mods/example_mod --output dist
+        run: python scripts/package_mod.py --mod-path mods/UniversalModLoader --output dist
 
       - name: Generate SHA256 checksums
         run: python scripts/generate_checksums.py --input dist
@@ -74,7 +74,7 @@ jobs:
 
       - name: Re-package mod for release
         run: |
-          python scripts/package_mod.py --mod-path mods/example_mod --output dist
+          python scripts/package_mod.py --mod-path mods/UniversalModLoader --output dist
           python scripts/generate_checksums.py --input dist
 
       - name: Create GitHub Release
